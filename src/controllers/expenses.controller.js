@@ -33,23 +33,23 @@ const createExpense = async (req, res) => {
   );
 
   if (!newExpense) {
-    return res.status(400).send('Bad Request');
+    return res.sendStatus(400);
   }
 
   return res.status(201).json(expensesService.normalized(newExpense));
 };
 
 const getExpenseById = async (req, res) => {
-  const expensId = Number(req.params.id);
+  const expenseId = Number(req.params.id);
 
-  if (Number.isNaN(expensId)) {
-    return res.status(404).send('Bad Request');
+  if (Number.isNaN(expenseId)) {
+    return res.sendStatus(404);
   }
 
-  const searchedExpense = await expensesService.getById(expensId);
+  const searchedExpense = await expensesService.getById(expenseId);
 
   if (!searchedExpense) {
-    return res.status(404).send('Not Found');
+    return res.sendStatus(404);
   }
 
   res.status(200).json(expensesService.normalized(searchedExpense));
@@ -61,23 +61,23 @@ const deleteExpense = async (req, res) => {
   const deletedExpense = await expensesService.remove(expenseId);
 
   if (!deletedExpense) {
-    return res.status(404).send('Not Found');
+    return res.sendStatus(404);
   }
 
-  res.status(204).json();
+  res.sendStatus(204);
 };
 
 const updateExpense = async (req, res) => {
   const expenseId = Number(req.params.id);
 
   if (Number.isNaN(expenseId)) {
-    return res.status(400).send('Bad Request');
+    return res.sendStatus(404);
   }
 
   const updatedExpense = await expensesService.update(expenseId, req.body);
 
   if (!updatedExpense) {
-    return res.status(404).send('Not Found');
+    return res.sendStatus(404);
   }
 
   res.status(200).json(expensesService.normalized(updatedExpense));
