@@ -4,7 +4,7 @@ const { Router } = require('express');
 
 const {
   createExpense,
-  deletExpense,
+  deleteExpense,
   getExpenseById,
   getExpenses,
   updateExpense,
@@ -15,7 +15,7 @@ const expensesRoutes = Router();
 expensesRoutes.get('/', getExpenses);
 expensesRoutes.post('/', createExpense);
 expensesRoutes.get('/:id', getExpenseById);
-expensesRoutes.delete('/:id', deletExpense);
+expensesRoutes.delete('/:id', deleteExpense);
 expensesRoutes.patch('/:id', updateExpense);
 
 module.exports = {

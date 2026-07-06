@@ -3,7 +3,7 @@ const usersService = require('../services/users.services');
 const getUsers = async (req, res) => {
   const users = await usersService.getAll();
 
-  res.send(users);
+  res.status(200).json(users);
 };
 
 const createUser = async (req, res) => {
@@ -13,14 +13,14 @@ const createUser = async (req, res) => {
 
   const newUser = await usersService.create(req.body.name);
 
-  res.status(201).send(newUser);
+  res.status(201).json(newUser);
 };
 
 const getUserById = async (req, res) => {
   const id = Number(req.params.id);
 
   if (Number.isNaN(id)) {
-    return res.status(400).send('Bad Request');
+    return res.status(404).send('Bad Request');
   }
 
   const searchedUser = await usersService.getById(id);
@@ -29,7 +29,7 @@ const getUserById = async (req, res) => {
     return res.status(404).send('Not Found');
   }
 
-  res.status(200).send(searchedUser);
+  res.status(200).json(searchedUser);
 };
 
 const deleteUser = async (req, res) => {
@@ -45,7 +45,7 @@ const deleteUser = async (req, res) => {
     return res.status(404).send('Not Found');
   }
 
-  res.status(204).send();
+  res.status(204).json();
 };
 
 const updateUser = async (req, res) => {
@@ -62,7 +62,7 @@ const updateUser = async (req, res) => {
     return res.status(404).send('Not Found');
   }
 
-  res.status(200).send(updatedUser);
+  res.status(200).json(updatedUser);
 };
 
 module.exports = {
