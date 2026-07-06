@@ -1,43 +1,43 @@
-const { users } = require('../db/users');
+const { User } = require('../models/User.model');
 
-const create = (name) => {
-  const nextId = Math.max(...users.map((u) => u.id), 0) + 1;
-  const newUser = { id: nextId, name };
-
-  users.push(newUser);
-
-  return newUser;
+const getAll = async () => {
+  return User.findAll();
 };
 
-const getById = (id) => {
-  return users.find((user) => user.id === id) || null;
+// id: Math.max(...users.map((u) => u.id), 0) + 1,
+const create = async (name) => {
+  return User.create({ name });
 };
 
-const remove = (id) => {
-  const userIndex = users.findIndex((user) => user.id === id);
+const getById = async (id) => {
+  return User.findByPk(id);
+};
 
-  if (userIndex === -1) {
+const remove = async (id) => {
+  return User.destroy({
+    where: {
+      id: id,
+    },
+  });
+};
+
+const update = async (id, name) => {
+  const [updatedRows] = await User.update(
+    { name },
+    {
+      where: { id },
+    },
+  );
+
+  if (!updatedRows) {
     return null;
   }
 
-  users.splice(userIndex, 1);
-
-  return users;
-};
-
-const update = (id, name) => {
-  const userIndex = users.findIndex((user) => user.id === id);
-
-  if (userIndex === -1) {
-    return null;
-  }
-
-  users[userIndex] = { id, name };
-
-  return users[userIndex];
+  return User.findByPk(id);
 };
 
 module.exports = {
+  getAll,
   create,
   getById,
   update,

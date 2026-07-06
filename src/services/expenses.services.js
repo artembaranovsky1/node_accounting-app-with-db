@@ -1,92 +1,76 @@
-const { expenses } = require('../db/expenses');
-const { users } = require('../db/users');
+const { Expense } = require('../models/Expense.model');
+const { Op } = require('sequelize');
 
-const getFilteredExpenses = (userId, categories, from, to) => {
-  let result = expenses;
+const normalized = ({ amount, category, id, note, spentAt, title, userId }) => {
+  return {
+    amount,
+    category,
+    id,
+    note,
+    spentAt,
+    title,
+    userId,
+  };
+};
+
+const getAll = (userId, categories, from, to) => {
+  const where = {};
 
   if (userId) {
-    result = result.filter((expense) => expense.userId === Number(userId));
+    where.userId = userId;
+  }
+
+  if (from || to) {
+    where.spentAt = {};
+
+    if (from) {
+      where.spentAt[Op.gte] = new Date(from);
+    }
+
+    if (to) {
+      where.spentAt[Op.lte] = new Date(to);
+    }
   }
 
   if (categories) {
-    result = result.filter((expense) =>
-      // eslint-disable-next-line
-      categories.includes(expense.category),);
+    where.category = { [Op.in]: categories.split(',') };
   }
 
-  if (from) {
-    result = result.filter(
-      (expense) => new Date(expense.spentAt) >= new Date(from),
-    );
-  }
-
-  if (to) {
-    result = result.filter(
-      (expense) => new Date(expense.spentAt) <= new Date(to),
-    );
-  }
-
-  return result;
+  return Expense.findAll({ where });
 };
 
-const create = (userId, spentAt, title, amount, category, note) => {
-  const user = users.find((us) => us.id === userId);
-
-  if (!user) {
-    return null;
-  }
-
-  const newExpense = {
-    id: Math.max(...expenses.map((e) => e.id), 0) + 1,
+const create = async (userId, spentAt, title, amount, category, note) => {
+  return Expense.create({
     userId,
     spentAt,
     title,
     amount,
     category,
     note,
-  };
-
-  expenses.push(newExpense);
-
-  return newExpense;
+  });
 };
 
-const getById = (expensId) => {
-  const searchedExpense = expenses.find((expense) => expense.id === expensId);
+const getById = async (expensId) => {
+  return Expense.findByPk(expensId);
+};
 
-  if (!searchedExpense) {
+const remove = async (expenseId) => {
+  return Expense.destroy({ where: { id: expenseId } });
+};
+
+const update = async (expenseId, updatedData) => {
+  const expense = await Expense.findByPk(expenseId);
+
+  if (!expense) {
     return null;
   }
 
-  return searchedExpense;
-};
-
-const remove = (expenseId) => {
-  const userexpense = expenses.findIndex((expense) => expense.id === expenseId);
-
-  if (userexpense === -1) {
-    return null;
-  }
-
-  return expenses.splice(userexpense, 1);
-};
-
-const update = (expenseId, updatedData) => {
-  const expenseIndex = expenses.findIndex(
-    (expense) => expense.id === expenseId,
-  );
-
-  if (expenseIndex === -1) {
-    return null;
-  }
-
-  expenses[expenseIndex] = { ...expenses[expenseIndex], ...updatedData };
-
-  return expenses[expenseIndex];
+  return expense.update(updatedData);
 };
 
 module.exports = {
-  getFilteredExpenses,
+  normalized,
+  getAll,
   create,
   getById,
   remove,
